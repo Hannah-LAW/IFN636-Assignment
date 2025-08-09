@@ -1,30 +1,32 @@
 const Item = require('../models/Item');
 
-// GET all items
+// Get Item
 const getItems = async (req, res) => {
   try {
-    const items = await Item.find({ userId: req.user.id });
+    const { type } = req.query; // 可以用 ?type=lost 或 ?type=found 來 filter
+    const query = { userId: req.user.id };
+    if (type) query.type = type;
+
+    const items = await Item.find(query);
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// CREATE new lost/found item
+// Create Item (Lost/Found)
 const createItem = async (req, res) => {
-  const { type, title, description, location, imageUrl } = req.body;
-  if (!type || !title || !location) {
-    return res.status(400).json({ message: 'Type, title and location are required' });
-  }
+  const { type, title, description, Campus, Location, imageUrl } = req.body;
   try {
     const newItem = await Item.create({
       userId: req.user.id,
       type,
       title,
       description,
-      location,
+      Campus,
+      Location,
       imageUrl,
-      status: 'pending'
+      status: 'pending',
     });
     res.status(201).json(newItem);
   } catch (error) {
@@ -32,29 +34,22 @@ const createItem = async (req, res) => {
   }
 };
 
-// UPDATE an existing item by id/admin
+// Update Item
 const updateItem = async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
+    if (item.userId.toString() !== req.user.id) return res.status(403).json({ message: 'Not authorized' });
 
-    // Check ownership or admin
-    if (item.userId.toString() !== req.user.id && !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
-
-    const { type, title, description, location, imageUrl, status } = req.body;
+    const { type, title, description, Campus, Location, imageUrl, status } = req.body;
 
     item.type = type || item.type;
     item.title = title || item.title;
     item.description = description || item.description;
-    item.location = location || item.location;
+    item.Campus = Campus || item.Campus;
+    item.Location = Location || item.Location;
     item.imageUrl = imageUrl || item.imageUrl;
-
-    // Only admin can update status
-    if (req.user.isAdmin && status) {
-      item.status = status;
-    }
+    item.status = status || item.status;
 
     const updatedItem = await item.save();
     res.json(updatedItem);
@@ -63,15 +58,12 @@ const updateItem = async (req, res) => {
   }
 };
 
-// DELETE an item by id/amdin
+// Delete Item
 const deleteItem = async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
-
-    if (item.userId.toString() !== req.user.id && !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
+    if (item.userId.toString() !== req.user.id) return res.status(403).json({ message: 'Not authorized' });
 
     await item.remove();
     res.json({ message: 'Item deleted' });
@@ -80,9 +72,4 @@ const deleteItem = async (req, res) => {
   }
 };
 
-module.exports = {
-  getItems,
-  createItem,
-  updateItem,
-  deleteItem
-};
+module.exports = { getItems, addItem, updateItem, deleteItem };
