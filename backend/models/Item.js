@@ -1,4 +1,17 @@
 const mongoose = require('mongoose');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const http = require('http');
+const app = require('../server'); 
+const connectDB = require('../config/db');
+const sinon = require('sinon');
+const Item = require('../models/Item');
+const { reportLostItem, reportFoundItem, getAllItems, updateItem,  deleteItem, verifyItem, getMatchSuggestions } = require('../controllers/itemController');
+const { expect } = chai;
+
+chai.use(chaiHttp);
+let server;
+let port;
 
 const itemSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
