@@ -5,8 +5,8 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import LostItems from './pages/LostItems';
 import FoundItems from './pages/FoundItems';
-import MatchSuggestions from './pages/MatchSuggestions';
-import AdminVerification from './pages/AdminVerification';
+import MatchSuggestions from './pages/MatchSuggestion';
+import AdminVerification from './pages/AdminPanel';
 
 function App() {
   return (
@@ -20,7 +20,6 @@ function App() {
         <Route path="/found-items" element={<FoundItems />} />
         <Route path="/matches" element={<MatchSuggestions />} />
         <Route path="/admin-verification" element={<AdminVerification />} />
-        <Route path="/lost-items" element={<LostItems />} />
       </Routes>
     </Router>
   );
