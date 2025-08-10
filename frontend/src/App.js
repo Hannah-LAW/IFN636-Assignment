@@ -20,6 +20,7 @@ function App() {
         <Route path="/found-items" element={<FoundItems />} />
         <Route path="/matches" element={<MatchSuggestions />} />
         <Route path="/admin-verification" element={<AdminVerification />} />
+        <Route path="/lost-items" element={<LostItems />} />
       </Routes>
     </Router>
   );
