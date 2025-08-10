@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from '../axiosConfig';
+import { useAuth } from '../context/AuthContext';
 
-function LostItems({ user }) {
+function LostItems() {
+  const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [form, setForm] = useState({
     type: "lost",
@@ -13,10 +15,12 @@ function LostItems({ user }) {
   });
   const [editingId, setEditingId] = useState(null);
 
-  // Fetch all items
+  // Fetch only lost items
   const fetchItems = async () => {
     try {
-      const res = await axios.get("/api/items");
+      const res = await axiosInstance.get("/api/items?type=lost", {
+        headers: { Authorization: `Bearer ${user?.token}` }
+      });
       setItems(res.data);
     } catch (err) {
       console.error(err);
@@ -24,10 +28,9 @@ function LostItems({ user }) {
   };
 
   useEffect(() => {
-    fetchItems();
-  }, []);
+    if (user) fetchItems();
+  }, [user]);
 
-  // Form update
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "image") {
@@ -37,9 +40,9 @@ function LostItems({ user }) {
     }
   };
 
-  // Create or update item
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) return alert("Please login");
 
     const formData = new FormData();
     for (const key in form) {
@@ -48,12 +51,12 @@ function LostItems({ user }) {
 
     try {
       if (editingId) {
-        await axios.put(`/api/items/${editingId}`, formData, {
+        await axiosInstance.put(`/api/items/${editingId}`, formData, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         setEditingId(null);
       } else {
-        await axios.post("/api/items", formData, {
+        await axiosInstance.post("/api/items", formData, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
       }
@@ -71,7 +74,6 @@ function LostItems({ user }) {
     }
   };
 
-  // Edit item
   const editItem = (item) => {
     setForm({
       type: item.type,
@@ -84,11 +86,10 @@ function LostItems({ user }) {
     setEditingId(item._id);
   };
 
-  // Delete item
   const deleteItem = async (id) => {
-    if (window.confirm("確定刪除嗎？")) {
+    if (window.confirm("Are you confirm to delete？")) {
       try {
-        await axios.delete(`/api/items/${id}`, {
+        await axiosInstance.delete(`/api/items/${id}`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         fetchItems();
@@ -98,10 +99,9 @@ function LostItems({ user }) {
     }
   };
 
-  // Admin verify item
   const verifyItem = async (id) => {
     try {
-      await axios.patch(`/api/items/${id}/verify`, {}, {
+      await axiosInstance.patch(`/api/items/${id}/verify`, {}, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       fetchItems();
@@ -112,12 +112,9 @@ function LostItems({ user }) {
 
   return (
     <div>
-      <h2>Lost & Found Items</h2>
+      <h2>Lost Items</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <select name="type" value={form.type} onChange={handleChange}>
-          <option value="lost">Lost</option>
-          <option value="found">Found</option>
-        </select>
+        <input type="hidden" name="type" value="lost" />
         <input
           type="text"
           name="title"
@@ -147,10 +144,11 @@ function LostItems({ user }) {
         <button type="submit">{editingId ? "Update" : "Report"}</button>
       </form>
 
+      <h3>Lost Items List</h3>
       <ul>
         {items.map((item) => (
-          <li key={item._id}>
-            <h3>{item.title} ({item.type})</h3>
+          <li key={item._id} style={{ border: '1px solid #ccc', margin: 5, padding: 10 }}>
+            <h4>{item.title}</h4>
             <p>{item.description}</p>
             <p>{item.Campus} - {item.Location}</p>
             {item.imageUrl && (
@@ -158,10 +156,10 @@ function LostItems({ user }) {
             )}
             <p>Status: {item.status}</p>
 
-            {user.isAdmin && item.status === "pending" && (
+            {user?.isAdmin && item.status === "pending" && (
               <button onClick={() => verifyItem(item._id)}>Verify</button>
             )}
-            {user.id === item.userId && (
+            {user?.id === item.userId && (
               <>
                 <button onClick={() => editItem(item)}>Edit</button>
                 <button onClick={() => deleteItem(item._id)}>Delete</button>
