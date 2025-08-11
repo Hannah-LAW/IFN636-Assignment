@@ -20,7 +20,8 @@ if (require.main === module) {
     //20250811 const PORT = process.env.PORT || 5001;
     //20250811 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     const PORT = process.env.PORT || 5001;
-    app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, '0.0.0.0', () => { console.log(`Server running on port ${PORT}`);});
+    console.log(`Listening on all interfaces at port ${PORT}`);
   }
 
 
