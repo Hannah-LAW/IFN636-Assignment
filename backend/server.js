@@ -1,19 +1,27 @@
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const connectDB = require('./config/db');
 
-// config/db.js
-const mongoose = require("mongoose");
+dotenv.config();
 
-// 令strictQuery行為與未來版本兼容
-mongoose.set('strictQuery', false);
 
-const connectDB = async () => {
-  try {
-    console.log("Connecting to MongoDB URI:", process.env.MONGO_URI);  // 測試用
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected successfully");
-  } catch (error) {
-    console.error("MongoDB connection error:", error.message);
-    process.exit(1);
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/tasks', require('./routes/taskRoutes'));
+
+// Export the app object for testing
+if (require.main === module) {
+    connectDB();
+    // If the file is run directly, start the server
+    //20250811 const PORT = process.env.PORT || 5001;
+    //20250811 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
   }
-};
 
-module.exports = connectDB;
+
+module.exports = app

@@ -16,8 +16,6 @@ jobs:
         node-version: [22] # Test on multiple Node.js versions
 
 
-    environment: MONGO_URI
-
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -45,9 +43,9 @@ jobs:
     - name: Install Backend Dependencies
       working-directory: ./backend
       run: | 
-       npm install --global yarn
-       yarn --version
-       yarn install
+        npm install --global yarn
+        yarn --version
+        yarn install
       
     # Install dependencies for frontend
     - name: Install Frontend Dependencies
