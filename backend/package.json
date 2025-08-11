@@ -1,7 +1,7 @@
 {
-  "name": "lost-and-found-backend",
+  "name": "task-manager-backend",
   "version": "1.0.0",
-  "description": "Backend for Lost And Found App",
+  "description": "Backend for Task Manager App",
   "main": "server.js",
   "scripts": {
     "test": "mocha",
@@ -24,8 +24,8 @@
     "esm": "^3.2.25",
     "mocha": "^11.0.1",
     "nodemon": "^2.0.15",
-    "sinon": "^19.0.5"
+    "sinon": "^19.0.2"
   },
-  "author": "Lost And Found Team",
+  "author": "Task Manager Team",
   "license": "ISC"
 }
