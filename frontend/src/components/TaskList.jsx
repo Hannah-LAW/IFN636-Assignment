@@ -1,10 +1,38 @@
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../axiosConfig';
+import { useEffect } from 'react';
 
 const TaskList = ({ tasks, setTasks, setEditingTask }) => {
   const { user } = useAuth();
 
-return (
+  // Fetch my items on mount
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await axiosInstance.get('/api/items/my', {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setTasks(res.data);
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    };
+    fetchTasks();
+  }, [user.token, setTasks]);
+
+  const onDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    try {
+      await axiosInstance.delete(`/api/items/${id}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
+      setTasks((prev) => prev.filter((t) => t._id !== id));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
+  return (
     <div>
       {tasks.length === 0 && <p>No items found.</p>}
       {tasks.map((item) => (

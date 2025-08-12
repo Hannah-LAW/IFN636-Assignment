@@ -2,19 +2,20 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../axiosConfig';
 
-const TaskForm = ({ tasks, setTasks, editingTask, setEditingTask, onSubmit }) => {
+const TaskForm = ({ setTasks, editingTask, setEditingTask }) => {
   const { user } = useAuth();
-  const [formData, setFormData] = useState({ title: '', description: '', deadline: '' });
+  const [formData, setFormData] = useState({ title: '', description: '', type: '', deadline: '' });
 
   useEffect(() => {
     if (editingTask) {
       setFormData({
-        title: editingTask.title,
-        description: editingTask.description,
-        deadline: editingTask.deadline,
+        title: editingTask.title || '',
+        description: editingTask.description || '',
+        type: editingTask.type || '',
+        deadline: editingTask.deadline || '',
       });
     } else {
-      setFormData({ title: '', description: '', deadline: '' });
+      setFormData({ title: '', description: '', type: '', deadline: '' });
     }
   }, [editingTask]);
 
@@ -25,9 +26,27 @@ const TaskForm = ({ tasks, setTasks, editingTask, setEditingTask, onSubmit }) =>
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    try {
+      if (editingTask) {
+        // Update
+        const res = await axiosInstance.put(`/api/items/${editingTask._id}`, formData, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setTasks((prev) => prev.map((t) => (t._id === res.data._id ? res.data : t)));
+      } else {
+        // Create
+        const res = await axiosInstance.post('/api/items', formData, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setTasks((prev) => [...prev, res.data]);
+      }
+      setEditingTask(null);
+      setFormData({ title: '', description: '', type: '', deadline: '' });
+    } catch (error) {
+      console.error('Error saving task:', error);
+    }
   };
 
   return (
@@ -60,10 +79,10 @@ const TaskForm = ({ tasks, setTasks, editingTask, setEditingTask, onSubmit }) =>
       />
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white p-2 rounded"
-      >
+        className="w-full bg-blue-600 text-white p-2 rounded">
         {editingTask ? 'Update Item' : 'Add Item'}
       </button>
+
       {editingTask && (
         <button
           type="button"

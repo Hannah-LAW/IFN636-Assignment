@@ -1,4 +1,3 @@
-
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -6,6 +5,7 @@ const connectDB = require('./config/db');
 
 dotenv.config();
 
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 const app = express();
 
@@ -23,6 +23,5 @@ if (require.main === module) {
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   }
 
-console.log('MONGO_URI:', process.env.MONGO_URI);
 
 module.exports = app
