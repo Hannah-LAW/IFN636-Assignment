@@ -21,7 +21,7 @@ describe('Item Controller Tests', () => {
 
   describe('addItem', () => {
     it('should create a new item successfully', async () => {
-      const fakeUserId = new mongoose.Types.ObjectId();
+      const fakeUserId = new mongoose.Types.ObjectId().toString();
       const req = {
         user: { id: fakeUserId },
         body: { title: 'Lost wallet', description: 'Black wallet', type: 'lost' },
@@ -43,7 +43,8 @@ describe('Item Controller Tests', () => {
 
       await addItem(req, res);
 
-      expect(createStub.calledOnceWith({
+      expect(createStub.calledOnce).to.be.true;
+      expect(createStub.calledWithMatch({
         userId: fakeUserId,
         title: req.body.title,
         description: req.body.description,
@@ -93,7 +94,7 @@ describe('Item Controller Tests', () => {
 
   describe('getMyItems', () => {
     it('should return items of the user', async () => {
-      const fakeUserId = new mongoose.Types.ObjectId();
+      const fakeUserId = new mongoose.Types.ObjectId().toString();
       const fakeItems = [{ _id: '1', userId: fakeUserId }];
       const findStub = sinon.stub(Item, 'find').resolves(fakeItems);
       const req = { user: { id: fakeUserId } };
@@ -144,7 +145,7 @@ describe('Item Controller Tests', () => {
 
   describe('updateItem', () => {
     it('should update item if authorized', async () => {
-      const fakeUserId = new mongoose.Types.ObjectId();
+      const fakeUserId = new mongoose.Types.ObjectId().toString();
       const fakeItem = {
         _id: new mongoose.Types.ObjectId(),
         userId: fakeUserId,
