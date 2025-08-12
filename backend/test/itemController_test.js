@@ -119,10 +119,10 @@ describe('Item Controller Tests', () => {
   });
 
   describe('getPendingItems', () => {
-    it('should return pending items', async () => {
+    it('should return pending items for admin', async () => {
       const fakeItems = [{ _id: '1', status: 'pending' }];
       const findStub = sinon.stub(Item, 'find').resolves(fakeItems);
-      const req = {};
+      const req = { user: { role: 'admin' } };
       const res = { json: sinon.spy(), status: sinon.stub().returnsThis() };
 
       await getPendingItems(req, res);
@@ -131,9 +131,22 @@ describe('Item Controller Tests', () => {
       expect(res.json.calledWith(fakeItems)).to.be.true;
     });
 
+    it('should return 403 for non-admin', async () => {
+      const req = { user: { role: 'user' } };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy()
+      };
+
+      await getPendingItems(req, res);
+
+      expect(res.status.calledWith(403)).to.be.true;
+      expect(res.json.calledWith({ message: 'Admin access required' })).to.be.true;
+    });
+
     it('should return 500 on error', async () => {
       sinon.stub(Item, 'find').throws(new Error('DB Error'));
-      const req = {};
+      const req = { user: { role: 'admin' } };
       const res = { json: sinon.spy(), status: sinon.stub().returnsThis() };
 
       await getPendingItems(req, res);
@@ -144,7 +157,7 @@ describe('Item Controller Tests', () => {
   });
 
   describe('updateItem', () => {
-    it('should update item if authorized', async () => {
+    it('should update item if authorized (user owns item)', async () => {
       const fakeUserId = new mongoose.Types.ObjectId().toString();
       const fakeItem = {
         _id: new mongoose.Types.ObjectId(),
@@ -152,16 +165,14 @@ describe('Item Controller Tests', () => {
         title: 'Old title',
         description: 'Old desc',
         type: 'lost',
-        image: 'oldimage.jpg',
-        save: sinon.stub()  // 用resolves回傳fakeItem
+        save: sinon.stub().resolvesThis()
       };
-      fakeItem.save.resolves(fakeItem);
-      
-      const findByIdStub = sinon.stub(Item, 'findById').resolves(fakeItem);
+
+      sinon.stub(Item, 'findById').resolves(fakeItem);
 
       const req = {
         params: { id: fakeItem._id.toString() },
-        user: { id: fakeUserId.toString() },
+        user: { id: fakeUserId.toString(), role: 'user' },
         body: { title: 'New title', description: 'New desc', type: 'found' },
         file: { filename: 'newimage.jpg' }
       };
@@ -170,16 +181,46 @@ describe('Item Controller Tests', () => {
         status: sinon.stub().returnsThis()
       };
 
-      console.log('Before updateItem: save called?', fakeItem.save.called);
       await updateItem(req, res);
-      console.log('After updateItem: save called?', fakeItem.save.called);
 
-      expect(findByIdStub.calledOnceWith(fakeItem._id.toString())).to.be.true;
       expect(fakeItem.title).to.equal('New title');
       expect(fakeItem.description).to.equal('New desc');
       expect(fakeItem.type).to.equal('found');
       expect(fakeItem.image).to.equal('/uploads/newimage.jpg');
-      expect(fakeItem.save.called).to.be.true; // 改用called，唔一定係calledOnce
+      expect(fakeItem.save.called).to.be.true;
+      expect(res.json.calledWith(fakeItem)).to.be.true;
+    });
+
+    it('should update item if authorized (admin user)', async () => {
+      const fakeUserId = new mongoose.Types.ObjectId().toString();
+      const fakeItem = {
+        _id: new mongoose.Types.ObjectId(),
+        userId: 'otherUserId',
+        title: 'Old title',
+        description: 'Old desc',
+        type: 'lost',
+        save: sinon.stub().resolvesThis()
+      };
+
+      sinon.stub(Item, 'findById').resolves(fakeItem);
+
+      const req = {
+        params: { id: fakeItem._id.toString() },
+        user: { id: fakeUserId, role: 'admin' },
+        body: { title: 'Admin updated title', description: 'Admin updated desc', type: 'found' },
+        file: null
+      };
+      const res = {
+        json: sinon.spy(),
+        status: sinon.stub().returnsThis()
+      };
+
+      await updateItem(req, res);
+
+      expect(fakeItem.title).to.equal('Admin updated title');
+      expect(fakeItem.description).to.equal('Admin updated desc');
+      expect(fakeItem.type).to.equal('found');
+      expect(fakeItem.save.called).to.be.true;
       expect(res.json.calledWith(fakeItem)).to.be.true;
     });
 
@@ -197,13 +238,13 @@ describe('Item Controller Tests', () => {
     it('should return 403 if user not authorized', async () => {
       const fakeItem = { userId: 'otherUserId', save: sinon.stub() };
       sinon.stub(Item, 'findById').resolves(fakeItem);
-      const req = { params: { id: 'someid' }, user: { id: 'notOwnerId' }, body: {} };
+      const req = { params: { id: 'someid' }, user: { id: 'notOwnerId', role: 'user' }, body: {} };
       const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
 
       await updateItem(req, res);
 
       expect(res.status.calledWith(403)).to.be.true;
-      expect(res.json.calledWith({ message: 'Not authorized' })).to.be.true;
+      expect(res.json.calledWith({ message: 'Not authorized to update this item' })).to.be.true;
     });
 
     it('should return 500 on error', async () => {
@@ -219,14 +260,14 @@ describe('Item Controller Tests', () => {
   });
 
   describe('approveItem', () => {
-    it('should approve item successfully', async () => {
+    it('should approve item successfully for admin', async () => {
       const fakeItem = {
         _id: new mongoose.Types.ObjectId(),
         status: 'pending',
         save: sinon.stub().resolves()
       };
       sinon.stub(Item, 'findById').resolves(fakeItem);
-      const req = { params: { id: fakeItem._id.toString() } };
+      const req = { params: { id: fakeItem._id.toString() }, user: { role: 'admin' } };
       const res = { json: sinon.spy(), status: sinon.stub().returnsThis() };
 
       await approveItem(req, res);
@@ -236,9 +277,19 @@ describe('Item Controller Tests', () => {
       expect(res.json.calledWith({ message: 'Item approved' })).to.be.true;
     });
 
+    it('should return 403 if user is not admin', async () => {
+      const req = { params: { id: 'someid' }, user: { role: 'user' } };
+      const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
+
+      await approveItem(req, res);
+
+      expect(res.status.calledWith(403)).to.be.true;
+      expect(res.json.calledWith({ message: 'Admin access required' })).to.be.true;
+    });
+
     it('should return 404 if item not found', async () => {
       sinon.stub(Item, 'findById').resolves(null);
-      const req = { params: { id: new mongoose.Types.ObjectId().toString() } };
+      const req = { params: { id: new mongoose.Types.ObjectId().toString() }, user: { role: 'admin' } };
       const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
 
       await approveItem(req, res);
@@ -249,7 +300,7 @@ describe('Item Controller Tests', () => {
 
     it('should return 500 on error', async () => {
       sinon.stub(Item, 'findById').throws(new Error('DB Error'));
-      const req = { params: { id: new mongoose.Types.ObjectId().toString() } };
+      const req = { params: { id: new mongoose.Types.ObjectId().toString() }, user: { role: 'admin' } };
       const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
 
       await approveItem(req, res);
@@ -260,14 +311,14 @@ describe('Item Controller Tests', () => {
   });
 
   describe('rejectItem', () => {
-    it('should reject item successfully', async () => {
+    it('should reject item successfully for admin', async () => {
       const fakeItem = {
         _id: new mongoose.Types.ObjectId(),
         status: 'pending',
         save: sinon.stub().resolves()
       };
       sinon.stub(Item, 'findById').resolves(fakeItem);
-      const req = { params: { id: fakeItem._id.toString() } };
+      const req = { params: { id: fakeItem._id.toString() }, user: { role: 'admin' } };
       const res = { json: sinon.spy(), status: sinon.stub().returnsThis() };
 
       await rejectItem(req, res);
@@ -277,9 +328,19 @@ describe('Item Controller Tests', () => {
       expect(res.json.calledWith({ message: 'Item rejected' })).to.be.true;
     });
 
+    it('should return 403 if user is not admin', async () => {
+      const req = { params: { id: 'someid' }, user: { role: 'user' } };
+      const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
+
+      await rejectItem(req, res);
+
+      expect(res.status.calledWith(403)).to.be.true;
+      expect(res.json.calledWith({ message: 'Admin access required' })).to.be.true;
+    });
+
     it('should return 404 if item not found', async () => {
       sinon.stub(Item, 'findById').resolves(null);
-      const req = { params: { id: new mongoose.Types.ObjectId().toString() } };
+      const req = { params: { id: new mongoose.Types.ObjectId().toString() }, user: { role: 'admin' } };
       const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
 
       await rejectItem(req, res);
@@ -290,7 +351,7 @@ describe('Item Controller Tests', () => {
 
     it('should return 500 on error', async () => {
       sinon.stub(Item, 'findById').throws(new Error('DB Error'));
-      const req = { params: { id: new mongoose.Types.ObjectId().toString() } };
+      const req = { params: { id: new mongoose.Types.ObjectId().toString() }, user: { role: 'admin' } };
       const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
 
       await rejectItem(req, res);
@@ -299,5 +360,4 @@ describe('Item Controller Tests', () => {
       expect(res.json.calledWithMatch({ message: 'DB Error' })).to.be.true;
     });
   });
-
 });

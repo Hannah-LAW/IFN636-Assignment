@@ -44,6 +44,9 @@ const getMyItems = async (req, res) => {
 // Admin get pending items
 const getPendingItems = async (req, res) => {
     try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Admin access required' });
+        }
         const items = await Item.find({ status: 'pending' });
         res.json(items);
     } catch (error) {
@@ -56,8 +59,9 @@ const updateItem = async (req, res) => {
     try {
         const item = await Item.findById(req.params.id);
         if (!item) return res.status(404).json({ message: 'Item not found' });
-        if (item.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: 'Not authorized' });
+        
+        if (req.user.role !== 'admin' && item.userId.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to update this item' });
         }
 
         const { title, description, type, deadline } = req.body;
@@ -77,6 +81,10 @@ const updateItem = async (req, res) => {
 // Admin approve item
 const approveItem = async (req, res) => {
     try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Admin access required' });
+        }
+        
         const item = await Item.findById(req.params.id);
         if (!item) return res.status(404).json({ message: 'Item not found' });
 
@@ -91,6 +99,10 @@ const approveItem = async (req, res) => {
 // Admin reject item
 const rejectItem = async (req, res) => {
     try {
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Admin access required' });
+        }
+        
         const item = await Item.findById(req.params.id);
         if (!item) return res.status(404).json({ message: 'Item not found' });
 
