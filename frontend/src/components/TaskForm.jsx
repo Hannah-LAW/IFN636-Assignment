@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../axiosConfig';
 
-const TaskForm = ({ tasks, setTasks, editingTask, setEditingTask }) => {
+const TaskForm = ({ tasks, setTasks, editingTask, setEditingTask, onSubmit }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({ title: '', description: '', deadline: '' });
 
@@ -18,53 +18,61 @@ const TaskForm = ({ tasks, setTasks, editingTask, setEditingTask }) => {
     }
   }, [editingTask]);
 
-  const handleSubmit = async (e) => {
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      if (editingTask) {
-        const response = await axiosInstance.put(`/api/tasks/${editingTask._id}`, formData, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        setTasks(tasks.map((task) => (task._id === response.data._id ? response.data : task)));
-      } else {
-        const response = await axiosInstance.post('/api/tasks', formData, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        setTasks([...tasks, response.data]);
-      }
-      setEditingTask(null);
-      setFormData({ title: '', description: '', deadline: '' });
-    } catch (error) {
-      alert('Failed to save task.');
-    }
+    onSubmit(formData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded mb-6">
-      <h1 className="text-2xl font-bold mb-4">{editingTask ? 'Your Form Name: Edit Operation' : 'Your Form Name: Create Operation'}</h1>
+      <h1 className="text-2xl font-bold mb-4">{editingTask ? 'Edit Item' : 'Add New Item'}</h1>
       <input
         type="text"
+        name="title"
         placeholder="Title"
         value={formData.title}
-        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+        onChange={handleChange}
         className="w-full mb-4 p-2 border rounded"
+        required
       />
-      <input
-        type="text"
+      <textarea
+        name="description"
         placeholder="Description"
         value={formData.description}
-        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+        onChange={handleChange}
         className="w-full mb-4 p-2 border rounded"
+        rows={4}
+        required
       />
       <input
         type="date"
+        name="deadline"
         value={formData.deadline}
-        onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+        onChange={handleChange}
         className="w-full mb-4 p-2 border rounded"
       />
-      <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded">
-        {editingTask ? 'Update Button' : 'Create Button'}
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white p-2 rounded"
+      >
+        {editingTask ? 'Update Item' : 'Add Item'}
       </button>
+      {editingTask && (
+        <button
+          type="button"
+          onClick={() => setEditingTask(null)}
+          className="w-full mt-2 bg-gray-500 text-white p-2 rounded"
+        >
+          Cancel
+        </button>
+      )}
     </form>
   );
 };
