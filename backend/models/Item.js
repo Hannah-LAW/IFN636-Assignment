@@ -8,7 +8,8 @@ const itemSchema = new mongoose.Schema({
     type: { type: String, enum: ['lost', 'found'], required: true },
     image: { type: String },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    deadline: { type: Date }
 });
 
 module.exports = mongoose.model('Item', itemSchema);

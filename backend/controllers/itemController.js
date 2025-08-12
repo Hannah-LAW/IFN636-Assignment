@@ -3,7 +3,7 @@ const Item = require('../models/Item');
 // Add item
 const addItem = async (req, res) => {
     try {
-        const { title, description, type } = req.body;
+        const { title, description, type, deadline } = req.body;
         const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
         const item = await Item.create({
@@ -11,7 +11,8 @@ const addItem = async (req, res) => {
             title,
             description,
             type,
-            image: imagePath
+            image: imagePath,
+            deadline
         });
 
         res.status(201).json(item);
@@ -59,11 +60,12 @@ const updateItem = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
-        const { title, description, type } = req.body;
+        const { title, description, type, deadline } = req.body;
         if (title) item.title = title;
         if (description) item.description = description;
         if (type) item.type = type;
         if (req.file) item.image = `/uploads/${req.file.filename}`;
+        if (deadline) item.deadline = deadline;
 
         const updatedItem = await item.save();
         res.json(updatedItem);

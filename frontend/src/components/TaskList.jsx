@@ -4,33 +4,27 @@ import axiosInstance from '../axiosConfig';
 const TaskList = ({ tasks, setTasks, setEditingTask }) => {
   const { user } = useAuth();
 
-  const handleDelete = async (taskId) => {
-    try {
-      await axiosInstance.delete(`/api/tasks/${taskId}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      setTasks(tasks.filter((task) => task._id !== taskId));
-    } catch (error) {
-      alert('Failed to delete task.');
-    }
-  };
-
-  return (
+return (
     <div>
-      {tasks.map((task) => (
-        <div key={task._id} className="bg-gray-100 p-4 mb-4 rounded shadow">
-          <h2 className="font-bold">{task.title}</h2>
-          <p>{task.description}</p>
-          <p className="text-sm text-gray-500">Deadline: {new Date(task.deadline).toLocaleDateString()}</p>
+      {tasks.length === 0 && <p>No items found.</p>}
+      {tasks.map((item) => (
+        <div key={item._id} className="bg-gray-100 p-4 mb-4 rounded shadow">
+          <h2 className="font-bold">{item.title}</h2>
+          <p>{item.description}</p>
+          {item.deadline && (
+            <p className="text-sm text-gray-500">
+              Deadline: {new Date(item.deadline).toLocaleDateString()}
+            </p>
+          )}
           <div className="mt-2">
             <button
-              onClick={() => setEditingTask(task)}
+              onClick={() => setEditingTask(item)}
               className="mr-2 bg-yellow-500 text-white px-4 py-2 rounded"
             >
               Edit
             </button>
             <button
-              onClick={() => handleDelete(task._id)}
+              onClick={() => onDelete(item._id)}
               className="bg-red-500 text-white px-4 py-2 rounded"
             >
               Delete
