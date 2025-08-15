@@ -19,7 +19,7 @@ describe('Item Controller Tests', () => {
   let consoleStub;
 
   beforeEach(() => {
-    consoleStub = sinon.stub(console, 'error'); // 阻止 console.error print
+    consoleStub = sinon.stub(console, 'error');
   });
 
   afterEach(() => {
