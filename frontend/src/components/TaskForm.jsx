@@ -27,7 +27,6 @@ const TaskForm = ({ editingTask, setEditingTask, onSubmit }) => {
       setCampus('Gardens Point');
       setLocation('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingTask]);
 
   const handleSubmit = (e) => {
