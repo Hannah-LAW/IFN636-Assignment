@@ -11,6 +11,7 @@ const TaskForm = ({ editingTask, setEditingTask, onSubmit }) => {
   const typeOptions = ['Lost', 'Found'];
   const campusOptions = ['Gardens Point', 'Kelvin Grove'];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (editingTask) {
       setTitle(editingTask.title || '');
@@ -27,7 +28,7 @@ const TaskForm = ({ editingTask, setEditingTask, onSubmit }) => {
       setCampus('Gardens Point');
       setLocation('');
     }
-  }, [editingTask]);
+  }, [editingTask, typeOptions, campusOptions]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
