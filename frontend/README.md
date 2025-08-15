@@ -1,3 +1,74 @@
+# Lost and Found App
+
+A web application for reporting and searching lost and found items.  
+Users must **register** or **log in** before they can view or submit items.
+
+---
+
+## Public URL
+http://13.239.240.86
+
+---
+
+## Test Accounts
+
+### Admin Account
+- **Email:** sysadmin@gmail.com  
+- **Password:** sysadmin123
+
+### User Accounts
+- **Email:** hannah@qut.edu.au  
+  **Password:** 2134  
+
+- **Email:** alex@gmail.com  
+  **Password:** 123  
+
+---
+
+## Features
+
+### User
+- **View Items**
+  - See all **approved** items.
+  - See items **submitted by themselves**.
+- **Report Lost/Found Item**
+  - Submit a report for a lost or found item.
+- **Update/Delete Submitted Items**
+  - Any updates or deletions will be sent to the admin for approval.
+
+### Admin
+- **Approve / Reject** user submissions.
+
+---
+
+## How to Access the Project
+
+### 1. AWS EC2 Setup
+1. Log in to your AWS account and go to **EC2**.
+2. Copy your **Public IPv4 address** from the instance details.
+3. Make sure your **Security Group** inbound rules allow:
+   - **HTTP (port 80)**
+   - **Custom TCP for backend (port 5001)** if testing APIs
+   - **Custom TCP for frontend (port 3000)** if running locally
+4. Use the public IP in your browser:  
+   `http://<public-ip>` (e.g., `http://13.239.240.86`)
+
+---
+
+### 2. Check PM2 Status on Server
+1. SSH into the EC2 instance using **PuTTY**:
+   - **Host Name:** `<public-ip>`
+   - **Username:** `ubuntu`
+   - **Key:** Your `.pem` private key
+
+2. Once logged in, check the PM2 process status:
+   run pm2 status
+
+3. If frontend or backend is not online, restart them:
+   run pm2 restart all
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
