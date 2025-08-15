@@ -9,8 +9,8 @@ const {
   getApprovedItems,
   getMyItems,
   getPendingItems,
-  deleteItem,
   updateItem,
+  deleteItem,
   approveItem,
   rejectItem
 } = require('../controllers/itemController');
