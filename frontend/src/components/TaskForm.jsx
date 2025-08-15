@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const TaskForm = ({ editingTask, setEditingTask, onSubmit }) => {
   const [title, setTitle] = useState('');
@@ -8,10 +8,9 @@ const TaskForm = ({ editingTask, setEditingTask, onSubmit }) => {
   const [campus, setCampus] = useState('Gardens Point');
   const [location, setLocation] = useState('');
 
-  const typeOptions = ['Lost', 'Found'];
-  const campusOptions = ['Gardens Point', 'Kelvin Grove'];
+  const typeOptions = useMemo(() => ['Lost', 'Found'], []);
+  const campusOptions = useMemo(() => ['Gardens Point', 'Kelvin Grove'], []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (editingTask) {
       setTitle(editingTask.title || '');
