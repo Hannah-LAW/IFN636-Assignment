@@ -14,7 +14,8 @@ const addItem = async (req, res) => {
       type,
       campus: campus || undefined,
       location,
-      deadline
+      deadline,
+      status: 'pending'
     });
 
     res.status(201).json(item);
@@ -27,7 +28,12 @@ const addItem = async (req, res) => {
 // Get approved items
 const getApprovedItems = async (req, res) => {
   try {
-    const items = await Item.find({ status: 'approved' });
+    const items = await Item.find({
+      $or: [
+        { userId: req.user.id },
+        { status: 'approved' }
+      ]
+    });
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
