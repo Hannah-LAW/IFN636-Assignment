@@ -56,7 +56,7 @@ const updateItem = async (req, res) => {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    if (req.user.role !== 'admin' && item.userId.toString() !== req.user.id) {
+    if (req.user.role !== 'Admin' && item.userId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to update this item' });
     }
 
@@ -68,6 +68,11 @@ const updateItem = async (req, res) => {
     if (location) item.location = location;
     // if (req.file) item.image = `/uploads/${req.file.filename}`;
     if (deadline) item.deadline = deadline;
+
+    // Item status change to pending after user update
+    if (req.user.role !== 'Admin' && item.status === 'approved') {
+      item.status = 'pending';
+    }
 
     const updatedItem = await item.save();
     res.json(updatedItem);
@@ -84,8 +89,15 @@ const deleteItem = async (req, res) => {
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
     // Admin can delete item, user can delete their own item
-    if (req.user.role !== 'admin' && item.userId.toString() !== req.user.id) {
+    if (req.user.role !== 'Admin' && item.userId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this item' });
+    }
+
+    // Wait for approval after deletion
+    if (req.user.role !== 'Admin' && item.status === 'approved') {
+      item.status = 'pending';
+      await item.save();
+      return res.json({ message: 'Item updated to pending for admin approval' });
     }
 
     await item.remove();
@@ -99,7 +111,7 @@ const deleteItem = async (req, res) => {
 // Admin get pending items
 const getPendingItems = async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'Admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
     const items = await Item.find({ status: 'pending' });
@@ -112,7 +124,7 @@ const getPendingItems = async (req, res) => {
 // Admin approve item
 const approveItem = async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'Admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
 
@@ -130,7 +142,7 @@ const approveItem = async (req, res) => {
 // Admin reject item
 const rejectItem = async (req, res) => {
   try {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'Admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
 

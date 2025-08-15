@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import TaskForm from '../components/TaskForm';
 import axiosInstance from '../axiosConfig';
 import { useAuth } from '../context/AuthContext';
@@ -9,22 +9,21 @@ const TasksForm = () => {
 
   const handleFormSubmit = async (payload) => {
     try {
-      let res;
       if (editingTask) {
-        res = await axiosInstance.put(`/api/items/${editingTask._id}`, payload, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        alert('Item updated successfully.');
+        // Item status change to pending after update
+        await axiosInstance.put(`/api/items/${editingTask._id}`, 
+          { ...payload, status: 'pending' }, 
+          { headers: { Authorization: `Bearer ${user.token}` } }
+        );
       } else {
-        res = await axiosInstance.post('/api/items', payload, {
+        await axiosInstance.post('/api/items', payload, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
-        alert('Item submitted successfully.');
       }
       setEditingTask(null);
     } catch (error) {
-      alert('Failed to save task.');
       console.error(error);
+      alert('Failed to save task.');
     }
   };
 

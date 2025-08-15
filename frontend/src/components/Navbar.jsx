@@ -5,6 +5,8 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  const homePath = user?.role === 'Admin' ? '/taskslist' : '/';
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -12,11 +14,11 @@ const Navbar = () => {
 
   return (
     <nav className="bg-orange-600 text-white p-4 flex justify-between items-center">
-      <Link to="/" className="text-2xl font-bold">QUT Lost & Found</Link>
+      <Link to={homePath} className="text-2xl font-bold">QUT Lost & Found</Link>
       <div>
         {user && (
           <>
-            <Link to="/" className="mr-4">Lost / Found</Link> {/* 改成 Home.jsx */}
+            <Link to={homePath} className="mr-4">Home</Link>
             <Link to="/profile" className="mr-4">Profile</Link>
             <button
               onClick={handleLogout}
