@@ -3,13 +3,22 @@ import { useAuth } from '../context/AuthContext';
 const TaskList = ({ tasks, setEditingTask, onDelete, onApprove, onReject }) => {
   const { user } = useAuth();
 
-  if (!tasks.length)
+  if (!tasks.length) {
     return (
-      <div>
-        <p className="text-gray-400">You have not submitted any lost or found items yet.</p>
-        <p className="text-gray-400">This list is currently empty.</p>
+      <div className="text-gray-400 p-4 border rounded shadow bg-gray-50">
+        {user.role === 'Admin' ? (
+          <p className="text-gray-700 font-semibold">
+            No pending items for approval or rejection.
+          </p>
+        ) : (
+          <>
+            <p>You have not submitted any lost or found items yet.</p>
+            <p>This list is currently empty.</p>
+          </>
+        )}
       </div>
     );
+  }
 
   return (
     <ul>
@@ -62,23 +71,25 @@ const TaskList = ({ tasks, setEditingTask, onDelete, onApprove, onReject }) => {
             )}
 
             {/* User buttons */}
-            {user.role !== 'Admin' && (
-              <>
-                <button
-                  disabled={task.status === 'pending'}
-                  onClick={() => setEditingTask(task)}
-                  className="w-28 text-base bg-yellow-500 text-white px-3 py-2 rounded disabled:opacity-50"
-                >
-                  Edit
-                </button>
-                <button
-                  disabled={task.status === 'pending'}
-                  onClick={() => onDelete(task._id)}
-                  className="w-28 text-base bg-red-600 text-white px-3 py-2 rounded disabled:opacity-50"
-                >
-                  Delete
-                </button>
-              </>
+            {user.role !== 'Admin' && task.userId && (
+              (task.userId._id ? task.userId._id === user.id : task.userId === user.id) && (
+                <>
+                  <button
+                    disabled={task.status === 'pending'}
+                    onClick={() => setEditingTask(task)}
+                    className="w-28 text-base bg-yellow-500 text-white px-3 py-2 rounded disabled:opacity-50"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    disabled={task.status === 'pending'}
+                    onClick={() => onDelete(task._id)}
+                    className="w-28 text-base bg-red-600 text-white px-3 py-2 rounded disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                </>
+              )
             )}
           </div>
         </li>
