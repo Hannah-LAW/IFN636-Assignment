@@ -26,7 +26,7 @@ const addItem = async (req, res) => {
   }
 };
 
-// Get approved items
+// Get items for user: approved + own pending/approved
 const getApprovedItems = async (req, res) => {
   try {
     const items = await Item.find({
@@ -34,7 +34,7 @@ const getApprovedItems = async (req, res) => {
         { userId: req.user.id },
         { status: 'approved' }
       ]
-    });
+    }).populate('userId', 'email');
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -71,10 +71,11 @@ const updateItem = async (req, res) => {
     if (deadline) item.deadline = deadline;
 
     // Item status change to pending after user update
-    if (req.user.role !== 'Admin' && item.status === 'approved') {
+    if (req.user.role !== 'Admin') //&& item.status === 'approved') 
+      {
       item.status = 'pending';
+      item.lastAction = 'User edited item';
     }
-    item.lastAction = 'User edited item';
 
     const updatedItem = await item.save();
     res.json(updatedItem);
@@ -90,17 +91,9 @@ const deleteItem = async (req, res) => {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    // Admin can delete item, user can delete their own item
-    if (req.user.role !== 'Admin' && item.userId.toString() !== req.user.id) {
+    // User can only delete their own item
+    if (item.userId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this item' });
-    }
-
-    // Wait for approval after deletion
-    if (req.user.role !== 'Admin' && item.status === 'approved') {
-      item.status = 'pending';
-      item.lastAction = 'User deleted item';
-      await item.save();
-      return res.json({ message: 'Item updated to pending for admin approval' });
     }
 
     await item.remove();

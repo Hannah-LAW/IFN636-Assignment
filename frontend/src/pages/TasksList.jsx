@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const TasksList = () => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
-  const [editingTask, setEditingTask] = useState(null); // ✅ fix
+  const [editingTask, setEditingTask] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -24,7 +24,7 @@ const TasksList = () => {
     const fetchTasks = async () => {
       setLoading(true);
       try {
-        const url = user.role === 'Admin' ? '/api/items/pending' : '/api/items/my';
+        const url = user.role === 'Admin' ? '/api/items/pending' : '/api/items';
         const response = await axiosInstance.get(url, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
