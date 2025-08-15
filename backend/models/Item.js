@@ -10,6 +10,7 @@ const itemSchema = new mongoose.Schema({
     location: { type: String },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
     createdAt: { type: Date, default: Date.now },
+    lastAction: { type: String, enum: ['User added item', 'User edited item', 'User deleted item'], default: 'User added item' },
     deadline: { type: Date }
 });
 

@@ -15,7 +15,8 @@ const addItem = async (req, res) => {
       campus: campus || undefined,
       location,
       deadline,
-      status: 'pending'
+      status: 'pending',
+      lastAction: 'User added item'
     });
 
     res.status(201).json(item);
@@ -73,6 +74,7 @@ const updateItem = async (req, res) => {
     if (req.user.role !== 'Admin' && item.status === 'approved') {
       item.status = 'pending';
     }
+    item.lastAction = 'User edited item';
 
     const updatedItem = await item.save();
     res.json(updatedItem);
@@ -96,6 +98,7 @@ const deleteItem = async (req, res) => {
     // Wait for approval after deletion
     if (req.user.role !== 'Admin' && item.status === 'approved') {
       item.status = 'pending';
+      item.lastAction = 'User deleted item';
       await item.save();
       return res.json({ message: 'Item updated to pending for admin approval' });
     }
@@ -114,7 +117,7 @@ const getPendingItems = async (req, res) => {
     if (req.user.role !== 'Admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
-    const items = await Item.find({ status: 'pending' });
+    const items = await Item.find({ status: 'pending' }).populate('userId', 'email');;
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
