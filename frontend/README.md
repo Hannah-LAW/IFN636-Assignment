@@ -6,7 +6,7 @@ Users must **register** or **log in** before they can view or submit items.
 ---
 
 ## Public URL
-http://13.239.240.86
+http://54.253.25.142
 
 ---
 
@@ -39,7 +39,7 @@ http://13.239.240.86
 ### Admin
 - **Approve / Reject** user submissions.
 
----
+------------------------------------------------------------------------------------------------
 
 ## How to Access the Project
 
@@ -72,7 +72,7 @@ http://13.239.240.86
 3. If frontend or backend is not online, restart them:
    run pm2 restart all
 
---------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------
 
 # Getting Started with Create React App
 
