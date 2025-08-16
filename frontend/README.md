@@ -51,11 +51,16 @@ http://13.239.240.86
    - **Custom TCP for backend (port 5001)** if testing APIs
    - **Custom TCP for frontend (port 3000)** if running locally
 4. Use the public IP in your browser:  
-   `http://<public-ip>` (e.g., `http://13.239.240.86`)
+   `http://<public-ip>` (e.g., `http://54.253.25.142`)
 
 ---
 
-### 2. Check PM2 Status on Server
+### 2. Update live BaseURL
+1. Copyr your **Public IPv4 address** from the instance details.
+2. Update the live localhost in file frontend/src/axiosConfig.jsx
+   `http://<public-ip>:5001` (e.g., `http://54.253.25.142:5001`)
+
+### 3. Check PM2 Status on Server
 1. SSH into the EC2 instance using **PuTTY**:
    - **Host Name:** `<public-ip>`
    - **Username:** `ubuntu`
