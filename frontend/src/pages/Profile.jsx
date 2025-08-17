@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../axiosConfig';
 
+// Displays and updates user's profile information
 const Profile = () => {
   const { user } = useAuth(); // Access user token from context
   const [formData, setFormData] = useState({
@@ -12,8 +13,8 @@ const Profile = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  // Fetch profile data from the backend
   useEffect(() => {
-    // Fetch profile data from the backend
     const fetchProfile = async () => {
       setLoading(true);
       try {
@@ -36,6 +37,7 @@ const Profile = () => {
     if (user) fetchProfile();
   }, [user]);
 
+  // Sends PUT request to backend with updated profile info
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

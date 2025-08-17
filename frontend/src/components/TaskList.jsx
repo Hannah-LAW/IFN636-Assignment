@@ -1,8 +1,10 @@
 import { useAuth } from '../context/AuthContext';
 
+// Displays list of Lost/Found items and provides action buttons
 const TaskList = ({ tasks, setEditingTask, onDelete, onApprove, onReject }) => {
   const { user } = useAuth();
 
+  // Empty list handling
   if (!tasks.length) {
     return (
       <div className="text-gray-400 p-4 border rounded shadow bg-gray-50">
@@ -20,11 +22,11 @@ const TaskList = ({ tasks, setEditingTask, onDelete, onApprove, onReject }) => {
     );
   }
 
+  // Task list rendering
   return (
     <ul>
       {tasks.map(task => (
         <li key={task._id} className="mb-4 border p-4 rounded shadow flex justify-between items-start">
-          {/* Left side: item info */}
           <div>
             <p><strong>{task.title}</strong></p>
             <p>{task.description}</p>
@@ -50,7 +52,6 @@ const TaskList = ({ tasks, setEditingTask, onDelete, onApprove, onReject }) => {
             )}
           </div>
 
-          {/* Right side: buttons */}
           <div className="flex flex-col items-center ml-4 space-y-3">
             {/* Admin buttons */}
             {user.role === 'Admin' && task.status === 'pending' && (
@@ -69,7 +70,6 @@ const TaskList = ({ tasks, setEditingTask, onDelete, onApprove, onReject }) => {
                 </button>
               </>
             )}
-
             {/* User buttons */}
             {user.role !== 'Admin' && task.userId && (
               (task.userId._id ? task.userId._id === user.id : task.userId === user.id) && (

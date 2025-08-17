@@ -7,6 +7,7 @@ const Register = () => {
   const [roles, setRoles] = useState([]);
   const navigate = useNavigate();
 
+  // Fetch roles from backend
   useEffect(() => {
     const fetchRoles = async () => {
       try {
@@ -22,6 +23,7 @@ const Register = () => {
 
         setRoles(roleArray);
 
+        // Default role to Student if exists
         if (roleArray.includes('Student')) {
           setFormData(prev => ({ ...prev, role: 'Student' }));
         } else if (roleArray.length > 0) {
@@ -36,6 +38,7 @@ const Register = () => {
     fetchRoles();
   }, []);
 
+  // Sends POST request to backend to register new user
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

@@ -6,71 +6,77 @@ Users must **register** or **log in** before they can view or submit items.
 ---
 
 ## Public URL
-http://54.253.25.142
+http://3.27.122.1
 
 ---
 
 ## Test Accounts
 
-### Admin Account
-- **Email:** sysadmin@gmail.com  
-- **Password:** sysadmin123
+   ### Admin Account
+   - **Email:** sysadmin@gmail.com  
+   - **Password:** sysadmin123
 
-### User Accounts
-- **Email:** hannah@qut.edu.au  
-  **Password:** 2134  
+   ### User Accounts
+   - **Email:** hannah@qut.edu.au  
+   **Password:** 2134  
 
-- **Email:** alex@gmail.com  
-  **Password:** 123  
-
+   - **Email:** alex@gmail.com  
+   **Password:** 123  
+   
+Homepage button: [QUT Lost & Found]
 ---
 
 ## Features
 
-### User
-- **View Items**
-  - See all **approved** items.
-  - See items **submitted by themselves**.
-- **Report Lost/Found Item**
-  - Submit a report for a lost or found item.
-- **Update/Delete Submitted Items**
-  - Any updates or deletions will be sent to the admin for approval.
+   ### User
+   - **View Items**
+   - See all **approved** items.
+   - See items **submitted by themselves**.
+   - **Report Lost/Found Item**
+   - Submit a report for a lost or found item.
+   - **Update/Delete Submitted Items**
+   - Any updates or deletions will be sent to the admin for approval.
 
-### Admin
-- **Approve / Reject** user submissions.
-
-------------------------------------------------------------------------------------------------
-
-## How to Access the Project
-
-### 1. AWS EC2 Setup
-1. Log in to your AWS account and go to **EC2**.
-2. Copy your **Public IPv4 address** from the instance details.
-3. Make sure your **Security Group** inbound rules allow:
-   - **HTTP (port 80)**
-   - **Custom TCP for backend (port 5001)** if testing APIs
-   - **Custom TCP for frontend (port 3000)** if running locally
-4. Use the public IP in your browser:  
-   `http://<public-ip>` (e.g., `http://54.253.25.142`)
+   ### Admin
+   - **Approve / Reject** user submissions.
 
 ---
 
-### 2. Update live BaseURL
-1. Copyr your **Public IPv4 address** from the instance details.
-2. Update the live localhost in file frontend/src/axiosConfig.jsx
-   `http://<public-ip>:5001` (e.g., `http://54.253.25.142:5001`)
+## How to Access the Project
 
-### 3. Check PM2 Status on Server
-1. SSH into the EC2 instance using **PuTTY**:
-   - **Host Name:** `<public-ip>`
-   - **Username:** `ubuntu`
-   - **Key:** Your `.pem` private key
+   ### 1. AWS EC2 Setup
+         1. Log in to your AWS account and go to **EC2**.
+         2. Copy your **Public IPv4 address** from the instance details.
+         3. Make sure your **Security Group** inbound rules allow:
+            - **HTTP (port 80)**
+            - **Custom TCP for backend (port 5001)** if testing APIs
+            - **Custom TCP for frontend (port 3000)** if running locally
+         4. Use the public IP in your browser:  
+            `http://<public-ip>` (e.g., `http://3.27.122.1`)
 
-2. Once logged in, check the PM2 process status:
-   run pm2 status
+   ---
 
-3. If frontend or backend is not online, restart them:
-   run pm2 restart all
+   ### 2. Update live BaseURL
+         1. Copyr your **Public IPv4 address** from the instance details.
+         2. Update the live localhost in file frontend/src/axiosConfig.jsx
+            `http://<public-ip>:5001` (e.g., `http://3.27.122.1:5001`)
+
+   ### 3. Check PM2 Status on Server
+         1. SSH into the EC2 instance using **PuTTY**:
+            - **Host Name:** `<public-ip>`
+            - **Username:** `ubuntu`
+            - **Key:** Your `.pem` private key
+
+         2. Once logged in, check the PM2 process status:
+            run pm2 status
+
+         3. If frontend or backend is not online, restart them:
+            run pm2 restart all
+
+            For new public ip:
+            - navigate to backend folder, run pm2 start npm --name backend -- run start
+            - navigate to frontend folder, run yarn run build
+                                           run pm2 serve build/ 3000 --name "Frontend" --spa
 
 ------------------------------------------------------------------------------------------------
 

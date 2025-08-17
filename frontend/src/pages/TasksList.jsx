@@ -3,8 +3,9 @@ import TaskList from '../components/TaskList';
 import axiosInstance from '../axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
+// Display list of lost/found items, handle edit, delete, approve, reject
 const TasksList = () => {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Access user token from context
   const [tasks, setTasks] = useState([]);
   const [editingTask, setEditingTask] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -17,13 +18,15 @@ const TasksList = () => {
     deadline: '',
   });
 
-  // fetch tasks
+  // Fetch tasks from backend
   useEffect(() => {
     if (!user) return;
 
     const fetchTasks = async () => {
       setLoading(true);
       try {
+        // Admin: pending items
+        // User: own + approved items
         const url = user.role === 'Admin' ? '/api/items/pending' : '/api/items';
         const response = await axiosInstance.get(url, {
           headers: { Authorization: `Bearer ${user.token}` },
@@ -39,7 +42,7 @@ const TasksList = () => {
     fetchTasks();
   }, [user]);
 
-  // handle delete
+  // Handle delete
   const handleDelete = async (id) => {
     try {
       await axiosInstance.delete(`/api/items/${id}`, {
@@ -52,7 +55,7 @@ const TasksList = () => {
     }
   };
 
-  // handle edit submit
+  // Handle edit submit
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -69,7 +72,7 @@ const TasksList = () => {
     }
   };
 
-  // handle approve/reject
+  // Handle approve/reject
   const handleApprove = async (id) => {
     try {
       await axiosInstance.put(`/api/items/${id}/approve`, {}, {

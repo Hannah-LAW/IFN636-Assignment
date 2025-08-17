@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 
+// Handles creation and editing of Lost/Found items
 const TaskForm = ({ editingTask, setEditingTask, onSubmit }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -8,9 +9,11 @@ const TaskForm = ({ editingTask, setEditingTask, onSubmit }) => {
   const [campus, setCampus] = useState('Gardens Point');
   const [location, setLocation] = useState('');
 
+  // Options for select fields
   const typeOptions = useMemo(() => ['Lost', 'Found'], []);
   const campusOptions = useMemo(() => ['Gardens Point', 'Kelvin Grove'], []);
 
+  // Populate form fields when editingTask changes
   useEffect(() => {
     if (editingTask) {
       setTitle(editingTask.title || '');
@@ -29,11 +32,13 @@ const TaskForm = ({ editingTask, setEditingTask, onSubmit }) => {
     }
   }, [editingTask, typeOptions, campusOptions]);
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = { title, description, type, campus, location, deadline: deadline || null };
     onSubmit(payload);
 
+    // Reset form fields
     setTitle('');
     setDescription('');
     setType('Lost');

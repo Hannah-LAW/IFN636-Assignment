@@ -14,6 +14,7 @@ const handleSubmit = async (e) => {
     const response = await axiosInstance.post('/api/auth/login', formData);
     login(response.data);
 
+    // Redirects Admin to tasks list, Users to homepage
     if (response.data.role === 'Admin') {
       navigate('/taskslist'); // admin view: pending items
     } else {

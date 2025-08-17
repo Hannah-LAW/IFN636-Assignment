@@ -8,11 +8,13 @@ export const AuthProvider = ({ children }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
+  // Stores user data in localStorage and updates context state
   const login = (userData) => {
     if (userData.token) localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   };
 
+  // Clears localStorage and resets user state
   const logout = () => {
     localStorage.removeItem('user');
     setUser(null);

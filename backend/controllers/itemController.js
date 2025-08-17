@@ -2,6 +2,7 @@ const Item = require('../models/Item');
 
 // Add item
 const addItem = async (req, res) => {
+  // Create a new lost/found item by user
   try {
     const { title, description, type, campus, location, deadline } = req.body;
 
@@ -26,7 +27,8 @@ const addItem = async (req, res) => {
   }
 };
 
-// Get items for user: approved + own pending/approved
+// Get items
+// Get approved items & own pending/approved items
 const getApprovedItems = async (req, res) => {
   try {
     const items = await Item.find({
@@ -41,7 +43,7 @@ const getApprovedItems = async (req, res) => {
   }
 };
 
-// Get own items
+// Get only the current user's items
 const getMyItems = async (req, res) => {
   try {
     const items = await Item.find({ userId: req.user.id });
@@ -53,6 +55,8 @@ const getMyItems = async (req, res) => {
 
 // Update item
 const updateItem = async (req, res) => {
+  // Update item details if authorized
+  // Regular user edits make status pending
   try {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
@@ -67,11 +71,10 @@ const updateItem = async (req, res) => {
     if (type) item.type = type;
     if (campus) item.campus = campus;
     if (location) item.location = location;
-    // if (req.file) item.image = `/uploads/${req.file.filename}`;
     if (deadline) item.deadline = deadline;
 
     // Item status change to pending after user update
-    if (req.user.role !== 'Admin') //&& item.status === 'approved') 
+    if (req.user.role !== 'Admin')
       {
       item.status = 'pending';
       item.lastAction = 'User edited item';
@@ -91,7 +94,7 @@ const deleteItem = async (req, res) => {
     const item = await Item.findById(req.params.id);
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    // User can only delete their own item
+    // Users can delete their own items
     if (item.userId.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this item' });
     }
@@ -104,7 +107,7 @@ const deleteItem = async (req, res) => {
   }
 };
 
-// Admin get pending items
+// Admin get all pending items
 const getPendingItems = async (req, res) => {
   try {
     if (req.user.role !== 'Admin') {

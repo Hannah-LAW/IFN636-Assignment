@@ -2,10 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { addItem, getApprovedItems, getMyItems, updateItem, deleteItem, getPendingItems, approveItem, rejectItem } = require('../controllers/itemController');
 const { protect, admin } = require('../middleware/authMiddleware');
-// const upload = require('../middleware/uploadMiddleware');
 
 router.route('/')
-  .post(protect, /* upload.single('image'), */ addItem)
+  .post(protect, addItem)
   .get(protect, getApprovedItems);
 
 router.get('/my', protect, getMyItems);

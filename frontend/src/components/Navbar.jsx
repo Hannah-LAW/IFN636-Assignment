@@ -5,6 +5,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Determine home path based on role
   const homePath = user?.role === 'Admin' ? '/taskslist' : '/';
 
   const handleLogout = () => {

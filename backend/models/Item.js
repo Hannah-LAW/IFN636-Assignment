@@ -5,7 +5,6 @@ const itemSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
     type: { type: String, required: true },
-    // image: { type: String, required: false },
     campus: { type: String, default: 'Gardens Point' },
     location: { type: String },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
